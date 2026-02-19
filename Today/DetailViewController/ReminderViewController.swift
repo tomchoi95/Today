@@ -54,10 +54,22 @@ final class ReminderViewController: UICollectionViewController {
             comment: "Reminder view controller title"
         )
 
-        updateSnapshot()
+        updateSnapshotForViewing()
     }
 
     func cellRegistrationHandler(cell: UICollectionViewListCell, indexPath: IndexPath, row: Row) {
+        let section = section(for: indexPath)
+        switch (section, row) {
+        case (.view, _):
+            var contentConfiguration = cell.defaultContentConfiguration()
+            contentConfiguration.text = text(for: row)
+            contentConfiguration.textProperties.font =
+                UIFont.preferredFont(forTextStyle: row.textStyle)
+            contentConfiguration.image = row.image
+            cell.contentConfiguration = contentConfiguration
+        default:
+            fatalError()
+        }
         var contentConfiguration = cell.defaultContentConfiguration()
         contentConfiguration.text = text(for: row)
         contentConfiguration.textProperties.font = UIFont.preferredFont(forTextStyle: row.textStyle)
@@ -75,7 +87,13 @@ final class ReminderViewController: UICollectionViewController {
         }
     }
 
-    private func updateSnapshot() {
+    private func updateSnapshotForEditing() {
+        var snapshot = SnapShot()
+        snapshot.appendSections([.title, .date, .notes, .view])
+        dataSource?.apply(snapshot)
+    }
+
+    private func updateSnapshotForViewing() {
         var snapshot = SnapShot()
         snapshot.appendSections([.view])
         snapshot.appendItems([.date, .note, .time, .title], toSection: .view)
