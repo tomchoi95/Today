@@ -20,5 +20,8 @@ extension ReminderListViewController {
             forTextStyle: .caption1
         )
         cell.contentConfiguration = contentConfiguration
+        var backgroundConfiguration = UIBackgroundConfiguration.listCell()
+        backgroundConfiguration.backgroundColor = .todayListCellBackground
+        cell.backgroundConfiguration = backgroundConfiguration
     }
 }
