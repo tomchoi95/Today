@@ -27,6 +27,7 @@ final class ReminderViewController: UICollectionViewController {
         self.reminder = reminder
         var listConfiguration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
         listConfiguration.showsSeparators = false
+        listConfiguration.headerMode = .firstItemInSection
         let listLayout = UICollectionViewCompositionalLayout.list(using: listConfiguration)
         super.init(collectionViewLayout: listLayout)
     }
@@ -70,6 +71,10 @@ final class ReminderViewController: UICollectionViewController {
     func cellRegistrationHandler(cell: UICollectionViewListCell, indexPath: IndexPath, row: Row) {
         let section = section(for: indexPath)
         switch (section, row) {
+        case (_, .header(let title)):
+            var contentConfiguration = cell.defaultContentConfiguration()
+            contentConfiguration.text = title
+            cell.contentConfiguration = contentConfiguration
         case (.view, _):
             var contentConfiguration = cell.defaultContentConfiguration()
             contentConfiguration.text = text(for: row)
@@ -80,11 +85,6 @@ final class ReminderViewController: UICollectionViewController {
         default:
             fatalError()
         }
-        var contentConfiguration = cell.defaultContentConfiguration()
-        contentConfiguration.text = text(for: row)
-        contentConfiguration.textProperties.font = UIFont.preferredFont(forTextStyle: row.textStyle)
-        contentConfiguration.image = row.image
-        cell.contentConfiguration = contentConfiguration
         cell.tintColor = .todayPrimaryTint
     }
 
@@ -94,19 +94,28 @@ final class ReminderViewController: UICollectionViewController {
         case .note: return reminder.notes
         case .time: return reminder.dueDate.formatted(date: .omitted, time: .shortened)
         case .title: return reminder.title
+        default: return nil
         }
     }
 
     private func updateSnapshotForEditing() {
         var snapshot = SnapShot()
-        snapshot.appendSections([.title, .date, .notes, .view])
+        snapshot.appendSections([.title, .date, .notes])
+        snapshot.appendItems([.header(Section.title.name)], toSection: .title)
+        snapshot.appendItems([.header(Section.date.name)], toSection: .date)
+        snapshot.appendItems([.header(Section.notes.name)], toSection: .notes)
         dataSource?.apply(snapshot)
     }
 
     private func updateSnapshotForViewing() {
         var snapshot = SnapShot()
         snapshot.appendSections([.view])
-        snapshot.appendItems([.date, .note, .time, .title], toSection: .view)
+        snapshot.appendItems(
+            [
+                .header(""), .title, .date, .time, .note,
+            ],
+            toSection: .view
+        )
         dataSource?.apply(snapshot)
     }
 

@@ -9,6 +9,7 @@ import UIKit
 
 extension ReminderViewController {
     nonisolated enum Row: Hashable, Sendable {
+        case header(String)
         case date
         case note
         case time
