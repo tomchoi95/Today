@@ -60,5 +60,18 @@ final class ReminderListViewController: UICollectionViewController {
         listConfiguration.backgroundColor = .clear
         return UICollectionViewCompositionalLayout.list(using: listConfiguration)
     }
+}
+
+#Preview(traits: .defaultLayout) {
+    let listLayout: UICollectionViewCompositionalLayout = {
+        var listConfiguration = UICollectionLayoutListConfiguration(appearance: .grouped)
+        listConfiguration.showsSeparators = false
+        listConfiguration.backgroundColor = .clear
+        return UICollectionViewCompositionalLayout.list(using: listConfiguration)
+    }()
+
+    UINavigationController(
+        rootViewController: ReminderListViewController(collectionViewLayout: listLayout)
+    )
 
 }
