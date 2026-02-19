@@ -17,8 +17,8 @@ final class ReminderViewController: UICollectionViewController {
     /// - ItemIdentifierType: 각 항목(셀)을 식별하는 타입입니다. (여기서는 Row 사용, Hashable 준수 필수)
     /// 데이터 소스는 이 식별자들을 사용해 데이터의 변경 사항(Diff)을 계산하고 UI를 자동으로 업데이트합니다.
 
-    private typealias DataSource = UICollectionViewDiffableDataSource<Int, Row>
-    private typealias SnapShot = NSDiffableDataSourceSnapshot<Int, Row>
+    private typealias DataSource = UICollectionViewDiffableDataSource<Section, Row>
+    private typealias SnapShot = NSDiffableDataSourceSnapshot<Section, Row>
 
     var reminder: Reminder
     private var dataSource: DataSource?
@@ -27,6 +27,7 @@ final class ReminderViewController: UICollectionViewController {
         self.reminder = reminder
         var listConfiguration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
         listConfiguration.showsSeparators = false
+        listConfiguration.headerMode = .firstItemInSection
         let listLayout = UICollectionViewCompositionalLayout.list(using: listConfiguration)
         super.init(collectionViewLayout: listLayout)
     }
@@ -53,16 +54,37 @@ final class ReminderViewController: UICollectionViewController {
             "Reminder",
             comment: "Reminder view controller title"
         )
+        navigationItem.rightBarButtonItem = editButtonItem
 
-        updateSnapshot()
+        updateSnapshotForViewing()
+    }
+
+    override func setEditing(_ editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: animated)
+        if editing {
+            updateSnapshotForEditing()
+        } else {
+            updateSnapshotForViewing()
+        }
     }
 
     func cellRegistrationHandler(cell: UICollectionViewListCell, indexPath: IndexPath, row: Row) {
-        var contentConfiguration = cell.defaultContentConfiguration()
-        contentConfiguration.text = text(for: row)
-        contentConfiguration.textProperties.font = UIFont.preferredFont(forTextStyle: row.textStyle)
-        contentConfiguration.image = row.image
-        cell.contentConfiguration = contentConfiguration
+        let section = section(for: indexPath)
+        switch (section, row) {
+        case (_, .header(let title)):
+            var contentConfiguration = cell.defaultContentConfiguration()
+            contentConfiguration.text = title
+            cell.contentConfiguration = contentConfiguration
+        case (.view, _):
+            var contentConfiguration = cell.defaultContentConfiguration()
+            contentConfiguration.text = text(for: row)
+            contentConfiguration.textProperties.font =
+                UIFont.preferredFont(forTextStyle: row.textStyle)
+            contentConfiguration.image = row.image
+            cell.contentConfiguration = contentConfiguration
+        default:
+            fatalError()
+        }
         cell.tintColor = .todayPrimaryTint
     }
 
@@ -72,14 +94,37 @@ final class ReminderViewController: UICollectionViewController {
         case .note: return reminder.notes
         case .time: return reminder.dueDate.formatted(date: .omitted, time: .shortened)
         case .title: return reminder.title
+        default: return nil
         }
     }
 
-    private func updateSnapshot() {
+    private func updateSnapshotForEditing() {
         var snapshot = SnapShot()
-        snapshot.appendSections([0])
-        snapshot.appendItems([.date, .note, .time, .title], toSection: 0)
+        snapshot.appendSections([.title, .date, .notes])
+        snapshot.appendItems([.header(Section.title.name)], toSection: .title)
+        snapshot.appendItems([.header(Section.date.name)], toSection: .date)
+        snapshot.appendItems([.header(Section.notes.name)], toSection: .notes)
         dataSource?.apply(snapshot)
+    }
+
+    private func updateSnapshotForViewing() {
+        var snapshot = SnapShot()
+        snapshot.appendSections([.view])
+        snapshot.appendItems(
+            [
+                .header(""), .title, .date, .time, .note,
+            ],
+            toSection: .view
+        )
+        dataSource?.apply(snapshot)
+    }
+
+    private func section(for indexPath: IndexPath) -> Section {
+        let sectionNumber = isEditing ? indexPath.section + 1 : indexPath.section
+        guard let section = Section(rawValue: sectionNumber) else {
+            fatalError()
+        }
+        return section
     }
 }
 
@@ -91,3 +136,9 @@ final class ReminderViewController: UICollectionViewController {
  충돌 발생!
  Row는 @MainActor에 묶여 있어 다른 스레드로 보내질 수 없는데(Not Sendable), DataSource는 그것을 요구하니 오류가 발생한 것입니다.
  */
+
+#Preview {
+    UINavigationController(
+        rootViewController: ReminderViewController(reminder: Reminder.sampleData[0])
+    )
+}
