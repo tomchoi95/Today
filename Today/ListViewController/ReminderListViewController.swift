@@ -10,6 +10,7 @@ import UIKit
 final class ReminderListViewController: UICollectionViewController {
 
     var dataSource: DataSource?
+    var reminders: [Reminder] = Reminder.sampleData
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -19,17 +20,21 @@ final class ReminderListViewController: UICollectionViewController {
 
         let cellRegistration = UICollectionView.CellRegistration(handler: cellRegistrationHandler)
 
-        dataSource = DataSource(
-            collectionView: collectionView,
-            cellProvider: {
-                $0.dequeueConfiguredReusableCell(using: cellRegistration, for: $1, item: $2)
-            }
-        )
+        dataSource = DataSource(collectionView: collectionView) {
+            (collectionView: UICollectionView, indexPath: IndexPath, itemIdentifier: Reminder.ID) in
+            return collectionView.dequeueConfiguredReusableCell(
+                using: cellRegistration,
+                for: indexPath,
+                item: itemIdentifier
+            )
+        }
 
         var snapshot = SnapShot()
         snapshot.appendSections([0])
-        snapshot.appendItems(Reminder.sampleData.map(\.title))
+        snapshot.appendItems(Reminder.sampleData.map(\.id))
         dataSource?.apply(snapshot)
+        
+        updateSnapShot()
 
         collectionView.dataSource = dataSource
     }
@@ -40,4 +45,5 @@ final class ReminderListViewController: UICollectionViewController {
         listConfiguration.backgroundColor = .clear
         return UICollectionViewCompositionalLayout.list(using: listConfiguration)
     }
+
 }
