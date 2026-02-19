@@ -11,7 +11,14 @@ final class ReminderViewController: UICollectionViewController {
     /// Main actor-isolated conformance of 'ReminderViewController.Row' to 'Hashable' cannot satisfy conformance requirement for a 'Sendable' type parameter 'ItemIdentifierType'
     /// Requirement specified as 'ItemIdentifierType' : 'Hashable' [with ItemIdentifierType = ReminderViewController.Row]
     /// 위의 오류가 무었인지 모르겠음.
+
+    /// UICollectionViewDiffableDataSource<SectionIdentifierType, ItemIdentifierType>
+    /// - SectionIdentifierType: 컬렉션 뷰의 섹션을 식별하는 타입입니다. (여기서는 Int 사용)
+    /// - ItemIdentifierType: 각 항목(셀)을 식별하는 타입입니다. (여기서는 Row 사용, Hashable 준수 필수)
+    /// 데이터 소스는 이 식별자들을 사용해 데이터의 변경 사항(Diff)을 계산하고 UI를 자동으로 업데이트합니다.
+
     private typealias DataSource = UICollectionViewDiffableDataSource<Int, Row>
+    private typealias SnapShot = NSDiffableDataSourceSnapshot<Int, Row>
 
     var reminder: Reminder
     private var dataSource: DataSource?
@@ -41,6 +48,8 @@ final class ReminderViewController: UICollectionViewController {
                 item: itemIdentifier
             )
         }
+        
+        updateSnapshot()
     }
 
     func cellRegistrationHandler(cell: UICollectionViewListCell, indexPath: IndexPath, row: Row) {
@@ -59,6 +68,13 @@ final class ReminderViewController: UICollectionViewController {
         case .time: return reminder.dueDate.formatted(date: .omitted, time: .shortened)
         case .title: return reminder.title
         }
+    }
+
+    private func updateSnapshot() {
+        var snapshot = SnapShot()
+        snapshot.appendSections([0])
+        snapshot.appendItems([.date, .note, .time, .title], toSection: 0)
+        dataSource?.apply(snapshot)
     }
 }
 
