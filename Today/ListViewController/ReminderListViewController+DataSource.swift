@@ -11,6 +11,24 @@ extension ReminderListViewController {
     typealias DataSource = UICollectionViewDiffableDataSource<Int, Reminder.ID>
     typealias SnapShot = NSDiffableDataSourceSnapshot<Int, Reminder.ID>
 
+    var reminderCompletedValue: String {
+        NSLocalizedString("Completed", comment: "Reminder completed value")
+    }
+
+    var reminderNotCompletedValue: String {
+        NSLocalizedString("Not completed", comment: "Reminder not completed value")
+    }
+
+    func updateSnapShot(reloading ids: [Reminder.ID] = []) {
+        var snapshot = SnapShot()
+        snapshot.appendSections([0])
+        snapshot.appendItems(reminders.map(\.id))
+        if !ids.isEmpty {
+            snapshot.reloadItems(ids)
+        }
+        dataSource?.apply(snapshot)
+    }
+
     func cellRegistrationHandler(
         cell: UICollectionViewListCell,
         indexPath: IndexPath,
@@ -27,6 +45,9 @@ extension ReminderListViewController {
 
         var doneButtonConfiguration = doneButtonConfiguration(for: reminder)
         doneButtonConfiguration.tintColor = .todayListCellDoneButtonTint
+        cell.accessibilityCustomActions = [doneButtonAccessibilityAction(for: reminder)]
+        cell.accessibilityValue =
+            reminder.isComplete ? reminderCompletedValue : reminderNotCompletedValue
         cell.accessories = [
             .customView(configuration: doneButtonConfiguration),
             .disclosureIndicator(displayed: .always),
@@ -51,6 +72,21 @@ extension ReminderListViewController {
         var reminder = reminder(withID: id)
         reminder.isComplete.toggle()
         updateReminder(reminder)
+        updateSnapShot(reloading: [id])
+    }
+
+    private func doneButtonAccessibilityAction(for reminder: Reminder)
+        -> UIAccessibilityCustomAction
+    {
+        let name = NSLocalizedString(
+            "Toggle completion",
+            comment: "Reminderdone button accessibility label"
+        )
+        let action = UIAccessibilityCustomAction(name: name) { [weak self] action in
+            self?.completeReminder(withID: reminder.id)
+            return true
+        }
+        return action
     }
 
     private func doneButtonConfiguration(for reminder: Reminder)
