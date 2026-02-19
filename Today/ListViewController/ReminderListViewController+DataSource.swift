@@ -8,11 +8,15 @@
 import UIKit
 
 extension ReminderListViewController {
-    typealias DataSource = UICollectionViewDiffableDataSource<Int, String>
-    typealias SnapShot = NSDiffableDataSourceSnapshot<Int, String>
+    typealias DataSource = UICollectionViewDiffableDataSource<Int, Reminder.ID>
+    typealias SnapShot = NSDiffableDataSourceSnapshot<Int, Reminder.ID>
 
-    func cellRegistrationHandler(cell: UICollectionViewListCell, indexPath: IndexPath, id: String) {
-        let reminder = Reminder.sampleData[indexPath.item]
+    func cellRegistrationHandler(
+        cell: UICollectionViewListCell,
+        indexPath: IndexPath,
+        id: Reminder.ID
+    ) {
+        let reminder = reminder(withID: id)
         var contentConfiguration = cell.defaultContentConfiguration()
         contentConfiguration.text = reminder.title
         contentConfiguration.secondaryText = reminder.dueDate.dayAndTimeText
@@ -31,6 +35,16 @@ extension ReminderListViewController {
         var backgroundConfiguration = UIBackgroundConfiguration.listCell()
         backgroundConfiguration.backgroundColor = .todayListCellBackground
         cell.backgroundConfiguration = backgroundConfiguration
+    }
+
+    func reminder(withID id: Reminder.ID) -> Reminder {
+        let index = reminders.indexOfReminder(withID: id)
+        return reminders[index]
+    }
+
+    func updateReminder(_ reminder: Reminder) {
+        let index = reminders.indexOfReminder(withID: reminder.id)
+        reminders[index] = reminder
     }
 
     private func doneButtonConfiguration(for reminder: Reminder)
