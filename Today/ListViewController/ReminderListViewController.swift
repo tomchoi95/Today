@@ -33,10 +33,25 @@ final class ReminderListViewController: UICollectionViewController {
         snapshot.appendSections([0])
         snapshot.appendItems(Reminder.sampleData.map(\.id))
         dataSource?.apply(snapshot)
-        
+
         updateSnapShot()
 
         collectionView.dataSource = dataSource
+    }
+
+    override func collectionView(
+        _ collectionView: UICollectionView,
+        shouldSelectItemAt indexPath: IndexPath
+    ) -> Bool {
+        let id = reminders[indexPath.item].id
+        pushDetailViewForReminder(withID: id)
+        return false
+    }
+
+    func pushDetailViewForReminder(withID id: Reminder.ID) {
+        let reminder = reminder(withID: id)
+        let viewController = ReminderViewController(reminder: reminder)
+        navigationController?.pushViewController(viewController, animated: true)
     }
 
     private func listLayout() -> UICollectionViewCompositionalLayout {
@@ -45,5 +60,18 @@ final class ReminderListViewController: UICollectionViewController {
         listConfiguration.backgroundColor = .clear
         return UICollectionViewCompositionalLayout.list(using: listConfiguration)
     }
+}
+
+#Preview(traits: .defaultLayout) {
+    let listLayout: UICollectionViewCompositionalLayout = {
+        var listConfiguration = UICollectionLayoutListConfiguration(appearance: .grouped)
+        listConfiguration.showsSeparators = false
+        listConfiguration.backgroundColor = .clear
+        return UICollectionViewCompositionalLayout.list(using: listConfiguration)
+    }()
+
+    UINavigationController(
+        rootViewController: ReminderListViewController(collectionViewLayout: listLayout)
+    )
 
 }
