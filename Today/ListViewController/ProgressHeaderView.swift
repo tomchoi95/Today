@@ -7,7 +7,9 @@
 
 import UIKit
 
-class ProgressHeaderView: UICollectionReusableView {
+final class ProgressHeaderView: UICollectionReusableView {
+    static var elementKind: String { UICollectionView.elementKindSectionHeader } // 이건 또 뭐여?
+    
     var progress: CGFloat = 0 {
         didSet {
             heightConstraint?.constant = progress * bounds.height

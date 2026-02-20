@@ -22,6 +22,7 @@ final class ReminderListViewController: UICollectionViewController {
             ReminderListStyle.all.name,
         ]
     )
+    var headerView: ProgressHeaderView?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,6 +41,18 @@ final class ReminderListViewController: UICollectionViewController {
             )
         }
 
+        let headerRegistration = UICollectionView.SupplementaryRegistration(
+            elementKind: ProgressHeaderView.elementKind,
+            handler: supplementryRegistrationHandler
+        )
+
+        dataSource?.supplementaryViewProvider = { supplementaryView, elementKind, indexPath in
+            return self.collectionView.dequeueConfiguredReusableSupplementary(
+                using: headerRegistration,
+                for: indexPath
+            )
+        }
+        
         let addButton = UIBarButtonItem(
             barButtonSystemItem: .add,
             target: self,
@@ -90,6 +103,7 @@ final class ReminderListViewController: UICollectionViewController {
 
     private func listLayout() -> UICollectionViewCompositionalLayout {
         var listConfiguration = UICollectionLayoutListConfiguration(appearance: .grouped)
+        listConfiguration.headerMode = .supplementary
         listConfiguration.showsSeparators = false
         listConfiguration.trailingSwipeActionsConfigurationProvider = makeSwipeActions
         listConfiguration.backgroundColor = .clear
@@ -108,6 +122,14 @@ final class ReminderListViewController: UICollectionViewController {
             completion(false)  // 여기 왜 false 인겨?
         }
         return UISwipeActionsConfiguration(actions: [deleteAction])
+    }
+
+    private func supplementryRegistrationHandler(
+        progressView: ProgressHeaderView,
+        elementKind: String,
+        indexPath: IndexPath
+    ) {
+        headerView = progressView
     }
 }
 
