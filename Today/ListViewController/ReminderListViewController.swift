@@ -92,6 +92,7 @@ final class ReminderListViewController: UICollectionViewController {
         collectionView.dataSource = dataSource
     }
 
+    // 왜 이 생명주기에 넣었을까?
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         refreshBackground()
