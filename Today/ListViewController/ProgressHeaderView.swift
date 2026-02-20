@@ -12,6 +12,7 @@ final class ProgressHeaderView: UICollectionReusableView {
 
     var progress: CGFloat = 0 {
         didSet {
+            setNeedsLayout()
             heightConstraint?.constant = progress * bounds.height
             UIView.animate(withDuration: 0.2) { [weak self] in
                 self?.layoutIfNeeded()  // 여기서 왜 이걸 불러야 하는지.
@@ -23,10 +24,20 @@ final class ProgressHeaderView: UICollectionReusableView {
     private let lowerView = UIView(frame: .zero)
     private let containerView = UIView(frame: .zero)
     private var heightConstraint: NSLayoutConstraint?
+    private var valueFormat: String {
+        NSLocalizedString("%d percent", comment: "progress percentage value format")
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         prepareSubview()
+
+        isAccessibilityElement = true
+        accessibilityLabel = NSLocalizedString(
+            "Progress",
+            comment: "Progress view accessibility label"
+        )
+        accessibilityTraits.update(with: .updatesFrequently)
     }
 
     required init?(coder: NSCoder) {
@@ -36,6 +47,7 @@ final class ProgressHeaderView: UICollectionReusableView {
     // 왜 이렇게 하는지 이해가 안감.
     override func layoutSubviews() {
         super.layoutSubviews()
+        accessibilityValue = String(format: valueFormat, Int(progress * 100.0))
         heightConstraint?.constant = progress * bounds.height
         containerView.layer.masksToBounds = true
         containerView.layer.cornerRadius = 0.5 * containerView.bounds.width
