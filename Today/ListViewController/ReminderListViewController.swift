@@ -29,6 +29,18 @@ final class ReminderListViewController: UICollectionViewController {
             )
         }
 
+        let addButton = UIBarButtonItem(
+            barButtonSystemItem: .add,
+            target: self,
+            action: #selector(didPressAddButton(_:))
+        )
+        addButton.accessibilityLabel = NSLocalizedString(
+            "Add reminder",
+            comment: "Add button accessibility label"
+        )
+        navigationItem.rightBarButtonItem = addButton
+        navigationItem.style = .navigator
+
         var snapshot = SnapShot()
         snapshot.appendSections([0])
         snapshot.appendItems(Reminder.sampleData.map(\.id))
@@ -60,8 +72,23 @@ final class ReminderListViewController: UICollectionViewController {
     private func listLayout() -> UICollectionViewCompositionalLayout {
         var listConfiguration = UICollectionLayoutListConfiguration(appearance: .grouped)
         listConfiguration.showsSeparators = false
+        listConfiguration.trailingSwipeActionsConfigurationProvider = makeSwipeActions
         listConfiguration.backgroundColor = .clear
         return UICollectionViewCompositionalLayout.list(using: listConfiguration)
+    }
+
+    private func makeSwipeActions(for indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        guard let id = dataSource?.itemIdentifier(for: indexPath) else { return nil }
+        let deleteActionTitle = NSLocalizedString("Delete", comment: "Delete action title")
+        let deleteAction = UIContextualAction(
+            style: .destructive,
+            title: deleteActionTitle
+        ) { [weak self] _, _, completion in
+            self?.deleteReminder(with: id)
+            self?.updateSnapShot()
+            completion(false)  // 여기 왜 false 인겨?
+        }
+        return UISwipeActionsConfiguration(actions: [deleteAction])
     }
 }
 
