@@ -13,6 +13,7 @@ class ProgressHeaderView: UICollectionReusableView {
     private let upperView = UIView(frame: .zero)
     private let lowerView = UIView(frame: .zero)
     private let containerView = UIView(frame: .zero)
+    private var heightConstraint: NSLayoutConstraint?
 
     private func prepareSubview() {
         containerView.addSubview(upperView)
@@ -38,5 +39,8 @@ class ProgressHeaderView: UICollectionReusableView {
         upperView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         lowerView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         lowerView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+
+        heightConstraint = lowerView.heightAnchor.constraint(equalToConstant: 0)
+        heightConstraint?.isActive = true
     }
 }
