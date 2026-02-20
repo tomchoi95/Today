@@ -5,6 +5,7 @@
 //  Created by Tom Choi on 2/19/26.
 //
 
+import EventKit
 import UIKit
 
 extension ReminderListViewController {
@@ -93,6 +94,13 @@ extension ReminderListViewController {
             do {
                 try await reminderStore.requestAccess()
                 reminders = try await reminderStore.readAll()
+                NotificationCenter.default
+                    .addObserver(
+                        self,
+                        selector: #selector(eventStoreChanged(_:)),
+                        name: .EKEventStoreChanged,
+                        object: nil
+                    )
             } catch TodayError.accessDenied, TodayError.accessRestricted {
                 #if DEBUG
                     reminders = Reminder.sampleData
@@ -100,6 +108,13 @@ extension ReminderListViewController {
             } catch {
                 showError(error)
             }
+            updateSnapShot()
+        }
+    }
+
+    func reminderStoreChanged() {
+        Task {
+            reminders = try await reminderStore.readAll()
             updateSnapShot()
         }
     }
