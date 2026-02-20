@@ -42,5 +42,6 @@ extension ReminderListViewController {
     @objc func didChageListStyle(_ sender: UISegmentedControl) {
         listStyle = ReminderListStyle(rawValue: sender.selectedSegmentIndex) ?? .today
         updateSnapShot()
+        refreshBackground()
     }
 }
