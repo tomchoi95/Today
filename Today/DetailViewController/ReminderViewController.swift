@@ -20,12 +20,18 @@ final class ReminderViewController: UICollectionViewController {
     private typealias DataSource = UICollectionViewDiffableDataSource<Section, Row>
     private typealias SnapShot = NSDiffableDataSourceSnapshot<Section, Row>
 
-    var reminder: Reminder
+    var reminder: Reminder {
+        didSet {
+            onChange(reminder)
+        }
+    }
     var workingReminder: Reminder
+    var onChange: (Reminder) -> Void
     private var dataSource: DataSource?
 
-    init(reminder: Reminder) {
+    init(reminder: Reminder, onChange: @escaping (Reminder) -> Void) {
         self.reminder = reminder
+        self.onChange = onChange
         self.workingReminder = reminder
         var listConfiguration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
         listConfiguration.showsSeparators = false
@@ -158,6 +164,9 @@ final class ReminderViewController: UICollectionViewController {
 
 #Preview {
     UINavigationController(
-        rootViewController: ReminderViewController(reminder: Reminder.sampleData[0])
+        rootViewController: ReminderViewController(
+            reminder: Reminder.sampleData[0],
+            onChange: { _ in }
+        )
     )
 }
