@@ -8,13 +8,13 @@
 import UIKit
 
 final class ProgressHeaderView: UICollectionReusableView {
-    static var elementKind: String { UICollectionView.elementKindSectionHeader } // 이건 또 뭐여?
-    
+    static var elementKind: String { UICollectionView.elementKindSectionHeader }  // 이건 또 뭐여?
+
     var progress: CGFloat = 0 {
         didSet {
             heightConstraint?.constant = progress * bounds.height
             UIView.animate(withDuration: 0.2) { [weak self] in
-                self?.layoutIfNeeded() // 여기서 왜 이걸 불러야 하는지.
+                self?.layoutIfNeeded()  // 여기서 왜 이걸 불러야 하는지.
             }
         }
     }
@@ -36,6 +36,7 @@ final class ProgressHeaderView: UICollectionReusableView {
     // 왜 이렇게 하는지 이해가 안감.
     override func layoutSubviews() {
         super.layoutSubviews()
+        heightConstraint?.constant = progress * bounds.height
         containerView.layer.masksToBounds = true
         containerView.layer.cornerRadius = 0.5 * containerView.bounds.width
     }

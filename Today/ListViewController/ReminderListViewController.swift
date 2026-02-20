@@ -23,9 +23,18 @@ final class ReminderListViewController: UICollectionViewController {
         ]
     )
     var headerView: ProgressHeaderView?
+    var progress: CGFloat {
+        let chunkSize = 1.0 / CGFloat(filteredReminders.count)
+        let progress = filteredReminders.reduce(0) {
+            $0 + ($1.isComplete ? chunkSize : 0)
+        }
+        return progress
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        collectionView.backgroundColor = .todayGradientFutureBegin
 
         let listLayout = listLayout()
         collectionView.collectionViewLayout = listLayout
@@ -52,7 +61,7 @@ final class ReminderListViewController: UICollectionViewController {
                 for: indexPath
             )
         }
-        
+
         let addButton = UIBarButtonItem(
             barButtonSystemItem: .add,
             target: self,
@@ -90,6 +99,18 @@ final class ReminderListViewController: UICollectionViewController {
         let id = filteredReminders[indexPath.item].id
         pushDetailViewForReminder(withID: id)
         return false
+    }
+
+    override func collectionView(
+        _ collectionView: UICollectionView,
+        willDisplaySupplementaryView view: UICollectionReusableView,
+        forElementKind elementKind: String,
+        at indexPath: IndexPath
+    ) {
+        guard elementKind == ProgressHeaderView.elementKind,
+            let progressView = view as? ProgressHeaderView
+        else { return }
+        progressView.progress = progress
     }
 
     func pushDetailViewForReminder(withID id: Reminder.ID) {
