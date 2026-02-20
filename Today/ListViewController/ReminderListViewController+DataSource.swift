@@ -23,7 +23,7 @@ extension ReminderListViewController {
         let ids = idsThatChanged.filter { id in filteredReminders.contains { $0.id == id } }
         var snapshot = SnapShot()
         snapshot.appendSections([0])
-        snapshot.appendItems(reminders.map(\.id))
+        snapshot.appendItems(filteredReminders.map(\.id))
         if !ids.isEmpty {
             snapshot.reloadItems(ids)
         }
