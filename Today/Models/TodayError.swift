@@ -10,6 +10,7 @@ import Foundation
 enum TodayError: LocalizedError {
     case failedReadingReminders
     case reminderHasNoDueDate
+    case accessDenied
 
     var errorDescription: String? {
         switch self {
@@ -22,6 +23,11 @@ enum TodayError: LocalizedError {
             return NSLocalizedString(
                 "A reminder has no due date.",
                 comment: "reminder has no due date error description"
+            )
+        case .accessDenied:
+            return NSLocalizedString(
+                "The app doesn't have permission to read reminders.",
+                comment: "access denied error description"
             )
         }
     }
