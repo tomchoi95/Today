@@ -9,7 +9,7 @@ import UIKit
 
 final class ReminderListViewController: UICollectionViewController {
     var dataSource: DataSource?
-    var reminders: [Reminder] = Reminder.sampleData
+    var reminders: [Reminder] = []
     var listStyle: ReminderListStyle = .today
     var filteredReminders: [Reminder] {
         return reminders.filter { listStyle.shouldInclude(date: $0.dueDate) }
@@ -90,6 +90,8 @@ final class ReminderListViewController: UICollectionViewController {
         updateSnapShot()
 
         collectionView.dataSource = dataSource
+
+        prepareReminderStore()
     }
 
     // 왜 이 생명주기에 넣었을까?
