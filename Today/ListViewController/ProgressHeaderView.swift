@@ -12,7 +12,7 @@ class ProgressHeaderView: UICollectionReusableView {
         didSet {
             heightConstraint?.constant = progress * bounds.height
             UIView.animate(withDuration: 0.2) { [weak self] in
-                self?.layoutIfNeeded()
+                self?.layoutIfNeeded() // 여기서 왜 이걸 불러야 하는지.
             }
         }
     }
@@ -29,6 +29,13 @@ class ProgressHeaderView: UICollectionReusableView {
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    // 왜 이렇게 하는지 이해가 안감.
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        containerView.layer.masksToBounds = true
+        containerView.layer.cornerRadius = 0.5 * containerView.bounds.width
     }
 
     private func prepareSubview() {
